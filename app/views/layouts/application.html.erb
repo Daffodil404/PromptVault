@@ -34,6 +34,7 @@
             <span class="signed-in">Signed in as <strong><%= current_user.username %></strong></span>
             <%= button_to "Log out", logout_path, method: :delete, class: "button button-secondary" %>
           <% else %>
+            <span class="button button-disabled" aria-disabled="true" title="Log in to create a prompt">New Prompt</span>
             <%= link_to "Sign up", sign_up_path %>
             <%= link_to "Log in", login_path, class: "button button-secondary" %>
           <% end %>

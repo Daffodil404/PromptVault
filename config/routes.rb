@@ -27,7 +27,7 @@ Rails.application.routes.draw do
       resources :users, only: [:show]
       resources :prompts do
         resources :prompt_versions, only: [:index, :show, :create]
-        resources :reviews, only: [:index, :create]
+        resources :reviews, only: [:index, :create, :update, :destroy]
       end
     end
   end

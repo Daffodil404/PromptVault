@@ -1,5 +1,7 @@
 class Api::V1::PromptsController < ApplicationController
   before_action :set_prompt, only: [:show, :update, :destroy]
+  before_action :require_login, only: [:create, :update, :destroy]
+  before_action :require_prompt_owner, only: [:update, :destroy]
   def index
     prompts = Prompt.includes(:user, :prompt_versions, :reviews).all
     render json: prompts.as_json(
@@ -22,7 +24,7 @@ class Api::V1::PromptsController < ApplicationController
   end
 
   def create
-    prompt = Prompt.new(prompt_params)
+    prompt = current_user.prompts.new(prompt_params)
     if prompt.save
       render json: prompt, status: :created
     else
@@ -44,11 +46,16 @@ class Api::V1::PromptsController < ApplicationController
   end
 
   private
+
   def set_prompt
     @prompt = Prompt.find(params[:id])
   end
 
+  def require_prompt_owner
+    require_owner(@prompt, "You can only modify your own prompts.")
+  end
+
   def prompt_params
-    params.require(:prompt).permit(:title, :abstract, :content, :status, :user_id)
+    params.require(:prompt).permit(:title, :abstract, :content, :status)
   end
 end

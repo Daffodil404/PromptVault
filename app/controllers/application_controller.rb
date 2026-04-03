@@ -20,6 +20,21 @@ class ApplicationController < ActionController::Base
   def require_login
     return if logged_in?
 
-    redirect_to login_path, alert: "Please log in first."
+    handle_access_denied("Please log in first.", :unauthorized)
+  end
+
+  def require_owner(record, message)
+    return if record.user == current_user
+
+    handle_access_denied(message, :forbidden)
+  end
+
+  def handle_access_denied(message, status)
+    if request.format.json?
+      render json: { error: message }, status: status
+    else
+      redirect_to login_path, alert: message if status == :unauthorized
+      redirect_back fallback_location: root_path, alert: message if status == :forbidden
+    end
   end
 end

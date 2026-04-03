@@ -166,6 +166,17 @@ button:hover {
   background: #d1d5db;
 }
 
+.button-disabled {
+  background: #cbd5e1;
+  color: #475569;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.button-disabled:hover {
+  background: #cbd5e1;
+}
+
 .button-danger {
   background: #dc2626;
 }
@@ -187,6 +198,12 @@ button:hover {
 
 .text-link {
   font-weight: 600;
+}
+
+.text-link-disabled {
+  color: #94a3b8;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 .pill {
@@ -266,6 +283,17 @@ button:hover {
 
 .empty-state {
   text-align: center;
+}
+
+.disabled-action {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+}
+
+.disabled-action.centered {
+  align-items: center;
 }
 
 @media (max-width: 640px) {

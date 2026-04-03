@@ -8,6 +8,11 @@
 
   <% if logged_in? %>
     <%= link_to "New Prompt", new_prompt_path, class: "button" %>
+  <% else %>
+    <div class="disabled-action">
+      <span class="button button-disabled" aria-disabled="true">New Prompt</span>
+      <span class="meta">Log in to create prompts.</span>
+    </div>
   <% end %>
 </section>
 
@@ -38,7 +43,11 @@
     <% if logged_in? %>
       <%= link_to "Create Prompt", new_prompt_path, class: "button" %>
     <% else %>
-      <%= link_to "Log in to create one", login_path, class: "button" %>
+      <div class="disabled-action centered">
+        <span class="button button-disabled" aria-disabled="true">Create Prompt</span>
+        <span class="meta">Log in to create the first prompt.</span>
+      </div>
+      <p><%= link_to "Log in", login_path, class: "text-link" %> or <%= link_to "sign up", sign_up_path, class: "text-link" %>.</p>
     <% end %>
   </section>
 <% end %>

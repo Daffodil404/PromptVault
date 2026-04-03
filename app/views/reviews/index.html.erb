@@ -10,6 +10,11 @@
     <%= link_to "Back to Prompt", prompt_path(@prompt), class: "button button-secondary" %>
     <% if logged_in? %>
       <%= link_to "Write Review", new_prompt_review_path(@prompt), class: "button" %>
+    <% else %>
+      <div class="disabled-action">
+        <span class="button button-disabled" aria-disabled="true">Write Review</span>
+        <span class="meta">Log in to write a review.</span>
+      </div>
     <% end %>
   </div>
 </section>

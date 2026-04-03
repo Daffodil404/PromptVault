@@ -11,6 +11,11 @@
   <div class="actions">
     <% if logged_in? %>
       <%= link_to "Add Review", new_prompt_review_path(@prompt), class: "button" %>
+    <% else %>
+      <div class="disabled-action">
+        <span class="button button-disabled" aria-disabled="true">Add Review</span>
+        <span class="meta">Log in to leave a review.</span>
+      </div>
     <% end %>
 
     <% if current_user == @prompt.user %>
@@ -55,6 +60,8 @@
         <%= link_to "See all", prompt_reviews_path(@prompt), class: "text-link" %>
         <% if logged_in? %>
           <%= link_to "Write a review", new_prompt_review_path(@prompt), class: "text-link" %>
+        <% else %>
+          <span class="text-link text-link-disabled" aria-disabled="true">Write a review</span>
         <% end %>
       </div>
     </div>
