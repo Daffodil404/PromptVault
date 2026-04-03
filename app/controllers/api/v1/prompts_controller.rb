@@ -3,41 +3,36 @@ class Api::V1::PromptsController < ApplicationController
   before_action :require_login, only: [:create, :update, :destroy]
   before_action :require_prompt_owner, only: [:update, :destroy]
   def index
-    prompts = Prompt.includes(:user, :prompt_versions, :reviews).all
-    render json: prompts.as_json(
-      include:{
-        user: {only:[:id, :username, :email, :role]},
-        prompt_versions:{only:[:id,:version_nummber,:content,:change_note,:user_id]},
-        reviews:{only:[:id, :rating,:comment,:user_id]},
-      }
-    )
+    prompts = Prompt.includes(:user, :prompt_versions, :reviews, :tags).all
+    render json: prompts.as_json(include: prompt_includes)
   end
 
   def show
-    render json: @prompt.as_json(
-      include:{
-        user: {only:[:id,:username,:email,:role]},
-        prompt_versions:{only:[:id,:version_nummber,:content,:change_note,:user_id]},
-        reviews:{only:[:id, :rating,:comment,:user_id]},
-      }
-    )
+    render json: @prompt.as_json(include: prompt_includes)
   end
 
   def create
-    prompt = current_user.prompts.new(prompt_params)
-    if prompt.save
-      render json: prompt, status: :created
-    else
-      render json: {errors: prompt.errors.full_messages}, status: :unprocessable_entity
+    prompt = current_user.prompts.new(prompt_attributes)
+
+    Prompt.transaction do
+      prompt.save!
+      prompt.sync_tags_from_names!(tag_names_param)
     end
+
+    render json: prompt.as_json(include: prompt_includes), status: :created
+  rescue ActiveRecord::RecordInvalid => error
+    render json: { errors: error.record.errors.full_messages }, status: :unprocessable_entity
   end
 
   def update
-    if @prompt.update(prompt_params)
-      render json: @prompt
-    else
-      render json: {errors: @prompt.errors.full_messages}, status: :unprocessable_entity
+    Prompt.transaction do
+      @prompt.update!(prompt_attributes)
+      @prompt.sync_tags_from_names!(tag_names_param)
     end
+
+    render json: @prompt.as_json(include: prompt_includes)
+  rescue ActiveRecord::RecordInvalid => error
+    render json: { errors: error.record.errors.full_messages }, status: :unprocessable_entity
   end
 
   def destroy
@@ -56,6 +51,23 @@ class Api::V1::PromptsController < ApplicationController
   end
 
   def prompt_params
-    params.require(:prompt).permit(:title, :abstract, :content, :status)
+    params.require(:prompt).permit(:title, :abstract, :content, :status, :tag_names)
+  end
+
+  def prompt_attributes
+    prompt_params.to_h.except("tag_names")
+  end
+
+  def tag_names_param
+    prompt_params[:tag_names]
+  end
+
+  def prompt_includes
+    {
+      user: { only: [:id, :username, :email, :role] },
+      prompt_versions: { only: [:id, :version_number, :content, :change_note, :user_id] },
+      reviews: { only: [:id, :rating, :comment, :user_id] },
+      tags: { only: [:id, :name] }
+    }
   end
 end

@@ -27,6 +27,14 @@
 
         <p><%= prompt.abstract %></p>
 
+        <% if prompt.tags.any? %>
+          <div class="tag-list">
+            <% prompt.tags.each do |tag| %>
+              <span class="tag-chip"><%= tag.name %></span>
+            <% end %>
+          </div>
+        <% end %>
+
         <p class="meta">
           Created by <strong><%= prompt.user.username %></strong>
           · <%= pluralize(prompt.reviews.size, "review") %>

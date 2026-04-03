@@ -2,6 +2,8 @@ class User < ApplicationRecord
   has_many :prompts, dependent: :destroy
   has_many :reviews, dependent: :destroy
   has_many :prompt_versions, dependent: :destroy
+  has_many :reviewed_prompts, -> { distinct }, through: :reviews, source: :prompt
+  has_one :profile, dependent: :destroy
 
   has_secure_password
 
