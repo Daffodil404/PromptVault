@@ -12,7 +12,7 @@
         <% end %>
       </div>
     <% end %>
-    <p class="meta">Created by <strong><%= @prompt.user.username %></strong></p>
+    <p class="meta">Created by <strong><%= link_to @prompt.user.username, user_path(@prompt.user) %></strong></p>
   </div>
 
   <div class="actions">
@@ -49,7 +49,7 @@
         <% @prompt_versions.each do |version| %>
           <li>
             <strong>v<%= version.version_number %></strong>
-            by <%= version.user.username %>
+            by <%= link_to version.user.username, user_path(version.user) %>
             <span class="meta">· <%= version.created_at.strftime("%b %d, %Y") %></span>
             <div><%= version.change_note.presence || "No change note provided." %></div>
           </li>
@@ -78,7 +78,7 @@
         <% @reviews.each do |review| %>
           <li>
             <div class="section-header">
-              <strong><%= review.user.username %></strong>
+              <strong><%= link_to review.user.username, user_path(review.user) %></strong>
               <span class="pill"><%= "#{review.rating}/5" %></span>
             </div>
             <p><%= review.comment %></p>

@@ -24,7 +24,8 @@ class ApplicationController < ActionController::Base
   end
 
   def require_owner(record, message)
-    return if record.user == current_user
+    owner = record.respond_to?(:user) ? record.user : record
+    return if owner == current_user
 
     handle_access_denied(message, :forbidden)
   end

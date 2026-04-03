@@ -12,9 +12,15 @@ class User < ApplicationRecord
   validates :role, presence: true
   validates :password, presence: true, length: { minimum: 6 }, if: :password_required?
 
+  after_create_commit :create_default_profile!
+
   private
 
   def password_required?
     new_record? || password.present?
+  end
+
+  def create_default_profile!
+    create_profile! unless profile
   end
 end

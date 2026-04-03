@@ -11,6 +11,7 @@ Rails.application.routes.draw do
 
   root "prompts#index"
 
+  resources :users, only: [:show, :edit, :update]
   resources :prompts do
     resources :reviews, except: :show
   end

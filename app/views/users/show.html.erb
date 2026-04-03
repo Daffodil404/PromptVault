@@ -1,0 +1,129 @@
+<% content_for :title, @user.username %>
+
+<section class="page-header">
+  <div>
+    <p class="eyebrow"><%= @user.role %></p>
+    <h1><%= @user.username %></h1>
+    <p class="meta"><%= @user.email %></p>
+  </div>
+
+  <% if current_user == @user %>
+    <%= link_to "Edit Profile", edit_user_path(@user), class: "button" %>
+  <% end %>
+</section>
+
+<section class="stats-grid">
+  <article class="card stat-card">
+    <h2><%= @user.prompts.count %></h2>
+    <p>Prompts created</p>
+  </article>
+
+  <article class="card stat-card">
+    <h2><%= @user.reviews.count %></h2>
+    <p>Reviews written</p>
+  </article>
+
+  <article class="card stat-card">
+    <h2><%= @user.reviewed_prompts.count %></h2>
+    <p>Prompts reviewed</p>
+  </article>
+</section>
+
+<section class="two-column">
+  <article class="card">
+    <h2>About</h2>
+    <dl class="profile-details">
+      <dt>Favorite prompt style</dt>
+      <dd><%= @profile.favorite_prompt_style.presence || "Not added yet" %></dd>
+
+      <dt>Location</dt>
+      <dd><%= @profile.location.presence || "Not added yet" %></dd>
+
+      <dt>Website</dt>
+      <dd>
+        <% if @profile.website.present? %>
+          <%= link_to @profile.website, @profile.website, target: "_blank", rel: "noopener" %>
+        <% else %>
+          Not added yet
+        <% end %>
+      </dd>
+    </dl>
+
+    <h3>Bio</h3>
+    <div class="prose">
+      <%= @profile.bio.present? ? simple_format(@profile.bio) : "No bio added yet." %>
+    </div>
+  </article>
+
+  <article class="card">
+    <div class="section-header">
+      <h2>Recent Prompts</h2>
+      <span class="meta"><%= pluralize(@user.prompts.count, "prompt") %></span>
+    </div>
+
+    <% if @recent_prompts.any? %>
+      <ul class="stack-list">
+        <% @recent_prompts.each do |prompt| %>
+          <li>
+            <%= link_to prompt.title, prompt_path(prompt) %>
+            <div class="meta"><%= prompt.status %></div>
+            <% if prompt.tags.any? %>
+              <div class="tag-list compact">
+                <% prompt.tags.each do |tag| %>
+                  <span class="tag-chip"><%= tag.name %></span>
+                <% end %>
+              </div>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p>No prompts created yet.</p>
+    <% end %>
+  </article>
+</section>
+
+<section class="two-column">
+  <article class="card">
+    <div class="section-header">
+      <h2>Reviewed Prompts</h2>
+      <span class="meta"><%= pluralize(@user.reviewed_prompts.count, "prompt") %></span>
+    </div>
+
+    <% if @reviewed_prompts.any? %>
+      <ul class="stack-list">
+        <% @reviewed_prompts.each do |prompt| %>
+          <li>
+            <%= link_to prompt.title, prompt_path(prompt) %>
+            <div class="meta">By <%= link_to prompt.user.username, user_path(prompt.user) %></div>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p>No reviewed prompts yet.</p>
+    <% end %>
+  </article>
+
+  <article class="card">
+    <div class="section-header">
+      <h2>Recent Reviews</h2>
+      <span class="meta"><%= pluralize(@user.reviews.count, "review") %></span>
+    </div>
+
+    <% if @recent_reviews.any? %>
+      <ul class="stack-list">
+        <% @recent_reviews.each do |review| %>
+          <li>
+            <div class="section-header">
+              <%= link_to review.prompt.title, prompt_path(review.prompt) %>
+              <span class="pill"><%= "#{review.rating}/5" %></span>
+            </div>
+            <p><%= review.comment %></p>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p>No reviews written yet.</p>
+    <% end %>
+  </article>
+</section>

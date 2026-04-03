@@ -1,0 +1,49 @@
+<% if @user.errors.any? || @profile.errors.any? %>
+  <section class="card errors">
+    <h2>Profile could not be updated:</h2>
+    <ul>
+      <% (@user.errors.full_messages + @profile.errors.full_messages).uniq.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  </section>
+<% end %>
+
+<%= form_with model: @user, local: true do |form| %>
+  <div class="field">
+    <%= form.label :username %>
+    <%= form.text_field :username, required: true %>
+  </div>
+
+  <div class="field">
+    <%= form.label :email %>
+    <%= form.email_field :email, required: true %>
+  </div>
+
+  <%= form.fields_for :profile, @profile do |profile_form| %>
+    <div class="field">
+      <%= profile_form.label :bio %>
+      <%= profile_form.text_area :bio, rows: 6, placeholder: "Tell others what kinds of prompts you write or review." %>
+    </div>
+
+    <div class="field">
+      <%= profile_form.label :location %>
+      <%= profile_form.text_field :location, placeholder: "Hamilton, ON" %>
+    </div>
+
+    <div class="field">
+      <%= profile_form.label :website %>
+      <%= profile_form.url_field :website, placeholder: "https://example.com" %>
+    </div>
+
+    <div class="field">
+      <%= profile_form.label :favorite_prompt_style, "Favorite prompt style" %>
+      <%= profile_form.text_field :favorite_prompt_style, placeholder: "Creative writing, tutoring, coding..." %>
+    </div>
+  <% end %>
+
+  <div class="actions">
+    <%= form.submit "Save Profile" %>
+    <%= link_to "Cancel", user_path(@user), class: "button button-secondary" %>
+  </div>
+<% end %>
