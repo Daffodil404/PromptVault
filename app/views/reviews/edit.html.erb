@@ -1,0 +1,12 @@
+<% content_for :title, "Edit Review" %>
+
+<section class="page-header">
+  <div>
+    <p class="eyebrow">Editing review for</p>
+    <h1><%= @prompt.title %></h1>
+  </div>
+</section>
+
+<section class="card form-card">
+  <%= render "form", prompt: @prompt, review: @review %>
+</section>

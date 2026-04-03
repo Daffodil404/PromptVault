@@ -1,0 +1,40 @@
+<% content_for :title, "#{@prompt.title} Reviews" %>
+
+<section class="page-header">
+  <div>
+    <p class="eyebrow">Reviews for</p>
+    <h1><%= @prompt.title %></h1>
+  </div>
+
+  <div class="actions">
+    <%= link_to "Back to Prompt", prompt_path(@prompt), class: "button button-secondary" %>
+    <% if logged_in? %>
+      <%= link_to "Write Review", new_prompt_review_path(@prompt), class: "button" %>
+    <% end %>
+  </div>
+</section>
+
+<section class="card">
+  <% if @reviews.any? %>
+    <ul class="stack-list">
+      <% @reviews.each do |review| %>
+        <li>
+          <div class="section-header">
+            <strong><%= review.user.username %></strong>
+            <span class="pill"><%= "#{review.rating}/5" %></span>
+          </div>
+          <p><%= review.comment %></p>
+
+          <% if current_user == review.user %>
+            <div class="inline-actions">
+              <%= link_to "Edit", edit_prompt_review_path(@prompt, review), class: "text-link" %>
+              <%= button_to "Delete", prompt_review_path(@prompt, review), method: :delete, data: { turbo_confirm: "Delete this review?" }, class: "button-link" %>
+            </div>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p>No reviews have been written for this prompt yet.</p>
+  <% end %>
+</section>

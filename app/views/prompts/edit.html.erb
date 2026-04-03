@@ -1,0 +1,12 @@
+<% content_for :title, "Edit Prompt" %>
+
+<section class="page-header">
+  <div>
+    <h1>Edit Prompt</h1>
+    <p>Update the prompt details and record a change note if the content changed.</p>
+  </div>
+</section>
+
+<section class="card form-card">
+  <%= render "form", prompt: @prompt %>
+</section>

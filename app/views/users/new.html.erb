@@ -1,43 +1,53 @@
-<h1>Create an Account</h1>
+<% content_for :title, "Sign Up" %>
 
-<% if @user.errors.any? %>
+<section class="page-header">
   <div>
-    <h2><%= pluralize(@user.errors.count, "error") %> prevented this account from being saved:</h2>
-    <ul>
-      <% @user.errors.full_messages.each do |message| %>
-        <li><%= message %></li>
-      <% end %>
-    </ul>
+    <h1>Create an Account</h1>
+    <p>Sign up to publish prompts, track versions, and leave reviews.</p>
   </div>
-<% end %>
+</section>
 
-<%= form_with model: @user, url: sign_up_path, local: true do |form| %>
-  <div>
-    <%= form.label :username %>
-    <%= form.text_field :username %>
-  </div>
+<section class="card form-card auth-card">
+  <% if @user.errors.any? %>
+    <section class="card errors">
+      <h2><%= pluralize(@user.errors.count, "error") %> prevented this account from being saved:</h2>
+      <ul>
+        <% @user.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </section>
+  <% end %>
 
-  <div>
-    <%= form.label :email %>
-    <%= form.email_field :email %>
-  </div>
+  <%= form_with model: @user, url: sign_up_path, local: true do |form| %>
+    <div class="field">
+      <%= form.label :username %>
+      <%= form.text_field :username, required: true %>
+    </div>
 
-  <div>
-    <%= form.label :role %>
-    <%= form.select :role, [["Author", "author"], ["Admin", "admin"]] %>
-  </div>
+    <div class="field">
+      <%= form.label :email %>
+      <%= form.email_field :email, required: true %>
+    </div>
 
-  <div>
-    <%= form.label :password %>
-    <%= form.password_field :password %>
-  </div>
+    <div class="field">
+      <%= form.label :role %>
+      <%= form.select :role, [["Author", "author"], ["Admin", "admin"]] %>
+    </div>
 
-  <div>
-    <%= form.label :password_confirmation %>
-    <%= form.password_field :password_confirmation %>
-  </div>
+    <div class="field">
+      <%= form.label :password %>
+      <%= form.password_field :password, required: true %>
+    </div>
 
-  <div>
-    <%= form.submit "Sign up" %>
-  </div>
-<% end %>
+    <div class="field">
+      <%= form.label :password_confirmation %>
+      <%= form.password_field :password_confirmation, required: true %>
+    </div>
+
+    <div class="actions">
+      <%= form.submit "Sign up" %>
+      <%= link_to "Already have an account?", login_path, class: "text-link" %>
+    </div>
+  <% end %>
+</section>

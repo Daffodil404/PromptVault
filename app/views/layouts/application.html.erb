@@ -23,20 +23,30 @@
   </head>
 
   <body>
-    <nav>
-      <% if logged_in? %>
-        Signed in as <%= current_user.username %>
-        <%= button_to "Log out", logout_path, method: :delete %>
-      <% else %>
-        <%= link_to "Sign up", sign_up_path %>
-        <%= link_to "Log in", login_path %>
+    <header class="site-header">
+      <div class="container nav-bar">
+        <%= link_to "PromptVault", root_path, class: "brand" %>
+
+        <nav class="nav-links">
+          <%= link_to "Prompts", prompts_path %>
+          <% if logged_in? %>
+            <%= link_to "New Prompt", new_prompt_path %>
+            <span class="signed-in">Signed in as <strong><%= current_user.username %></strong></span>
+            <%= button_to "Log out", logout_path, method: :delete, class: "button button-secondary" %>
+          <% else %>
+            <%= link_to "Sign up", sign_up_path %>
+            <%= link_to "Log in", login_path, class: "button button-secondary" %>
+          <% end %>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <% flash.each do |type, message| %>
+        <p class="flash <%= type %>"><%= message %></p>
       <% end %>
-    </nav>
 
-    <% flash.each do |type, message| %>
-      <p class="flash <%= type %>"><%= message %></p>
-    <% end %>
-
-    <%= yield %>
+      <%= yield %>
+    </main>
   </body>
 </html>

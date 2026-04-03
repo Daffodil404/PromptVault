@@ -1,0 +1,44 @@
+<% content_for :title, "Prompts" %>
+
+<section class="page-header">
+  <div>
+    <h1>Prompt Library</h1>
+    <p>Browse, publish, and review reusable prompts.</p>
+  </div>
+
+  <% if logged_in? %>
+    <%= link_to "New Prompt", new_prompt_path, class: "button" %>
+  <% end %>
+</section>
+
+<% if @prompts.any? %>
+  <section class="card-grid">
+    <% @prompts.each do |prompt| %>
+      <article class="card">
+        <div class="card-header">
+          <h2><%= link_to prompt.title, prompt_path(prompt) %></h2>
+          <span class="pill"><%= prompt.status %></span>
+        </div>
+
+        <p><%= prompt.abstract %></p>
+
+        <p class="meta">
+          Created by <strong><%= prompt.user.username %></strong>
+          · <%= pluralize(prompt.reviews.size, "review") %>
+        </p>
+
+        <%= link_to "View prompt", prompt_path(prompt), class: "button button-secondary" %>
+      </article>
+    <% end %>
+  </section>
+<% else %>
+  <section class="card empty-state">
+    <h2>No prompts yet</h2>
+    <p>Create the first prompt to get the library started.</p>
+    <% if logged_in? %>
+      <%= link_to "Create Prompt", new_prompt_path, class: "button" %>
+    <% else %>
+      <%= link_to "Log in to create one", login_path, class: "button" %>
+    <% end %>
+  </section>
+<% end %>

@@ -9,7 +9,11 @@ Rails.application.routes.draw do
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
-  root "sessions#new"
+  root "prompts#index"
+
+  resources :prompts do
+    resources :reviews, except: :show
+  end
 
   get "sign_up", to: "users#new"
   post "sign_up", to: "users#create"

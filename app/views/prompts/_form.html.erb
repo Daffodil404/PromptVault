@@ -1,0 +1,42 @@
+<% if prompt.errors.any? %>
+  <section class="card errors">
+    <h2><%= pluralize(prompt.errors.count, "error") %> prevented this prompt from being saved:</h2>
+    <ul>
+      <% prompt.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  </section>
+<% end %>
+
+<%= form_with model: prompt, local: true do |form| %>
+  <div class="field">
+    <%= form.label :title %>
+    <%= form.text_field :title, required: true %>
+  </div>
+
+  <div class="field">
+    <%= form.label :abstract %>
+    <%= form.text_area :abstract, rows: 3, required: true %>
+  </div>
+
+  <div class="field">
+    <%= form.label :content %>
+    <%= form.text_area :content, rows: 10, required: true %>
+  </div>
+
+  <div class="field">
+    <%= form.label :status %>
+    <%= form.select :status, [["Draft", "draft"], ["Published", "published"], ["Archived", "archived"]] %>
+  </div>
+
+  <div class="field">
+    <%= label_tag "prompt_change_note", "Change note" %>
+    <%= text_area_tag "prompt[change_note]", params.dig(:prompt, :change_note), rows: 3 %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+    <%= link_to "Cancel", prompt.persisted? ? prompt_path(prompt) : prompts_path, class: "button button-secondary" %>
+  </div>
+<% end %>

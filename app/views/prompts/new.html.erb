@@ -1,0 +1,12 @@
+<% content_for :title, "New Prompt" %>
+
+<section class="page-header">
+  <div>
+    <h1>New Prompt</h1>
+    <p>Create a reusable prompt and save its first version.</p>
+  </div>
+</section>
+
+<section class="card form-card">
+  <%= render "form", prompt: @prompt %>
+</section>

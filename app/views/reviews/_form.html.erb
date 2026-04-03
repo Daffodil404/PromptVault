@@ -1,0 +1,27 @@
+<% if review.errors.any? %>
+  <section class="card errors">
+    <h2><%= pluralize(review.errors.count, "error") %> prevented this review from being saved:</h2>
+    <ul>
+      <% review.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  </section>
+<% end %>
+
+<%= form_with model: [prompt, review], local: true do |form| %>
+  <div class="field">
+    <%= form.label :rating %>
+    <%= form.select :rating, options_for_select((1..5).map { |value| ["#{value} / 5", value] }, review.rating) %>
+  </div>
+
+  <div class="field">
+    <%= form.label :comment %>
+    <%= form.text_area :comment, rows: 6, required: true %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+    <%= link_to "Cancel", prompt_path(prompt), class: "button button-secondary" %>
+  </div>
+<% end %>
