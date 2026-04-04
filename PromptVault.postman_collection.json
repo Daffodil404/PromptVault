@@ -1,0 +1,491 @@
+{
+  "info": {
+    "_postman_id": "7b3c8d8d-4d6d-4db0-9e23-promptvault-phase2",
+    "name": "PromptVault Phase 2",
+    "description": "Postman collection for PromptVault Rails API testing.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "auth_token",
+      "value": ""
+    },
+    {
+      "key": "prompt_id",
+      "value": "1"
+    },
+    {
+      "key": "review_id",
+      "value": "1"
+    },
+    {
+      "key": "user_id",
+      "value": "1"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Sign Up",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user\": {\n    \"username\": \"newuser\",\n    \"email\": \"newuser@example.com\",\n    \"password\": \"password\",\n    \"password_confirmation\": \"password\",\n    \"role\": \"author\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/sign_up",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "sign_up"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.token) {",
+                  "  pm.collectionVariables.set('auth_token', jsonData.data.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"alice@example.com\",\n  \"password\": \"password\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Prompts",
+      "item": [
+        {
+          "name": "Get Prompt Collection",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/prompts",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "prompts"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Prompt Details",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/prompts/{{prompt_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "prompts",
+                "{{prompt_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Prompt",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"prompt\": {\n    \"title\": \"Travel Planner\",\n    \"abstract\": \"A prompt for planning a trip\",\n    \"content\": \"Create a 3-day Toronto itinerary.\",\n    \"status\": \"draft\",\n    \"tag_names\": \"travel, planning, itinerary\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/prompts",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "prompts"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Prompt",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"prompt\": {\n    \"status\": \"published\",\n    \"content\": \"Create a detailed 3-day Toronto itinerary.\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/prompts/{{prompt_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "prompts",
+                "{{prompt_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Prompt",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/prompts/{{prompt_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "prompts",
+                "{{prompt_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Reviews",
+      "item": [
+        {
+          "name": "Get Reviews For Prompt",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/prompts/{{prompt_id}}/reviews",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "prompts",
+                "{{prompt_id}}",
+                "reviews"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"review\": {\n    \"rating\": 5,\n    \"comment\": \"Very useful and easy to follow.\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/prompts/{{prompt_id}}/reviews",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "prompts",
+                "{{prompt_id}}",
+                "reviews"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Review",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"review\": {\n    \"rating\": 4,\n    \"comment\": \"Updated review comment.\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/prompts/{{prompt_id}}/reviews/{{review_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "prompts",
+                "{{prompt_id}}",
+                "reviews",
+                "{{review_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Review",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/prompts/{{prompt_id}}/reviews/{{review_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "prompts",
+                "{{prompt_id}}",
+                "reviews",
+                "{{review_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Prompt Versions",
+      "item": [
+        {
+          "name": "Get Prompt Versions",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/prompts/{{prompt_id}}/prompt_versions",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "prompts",
+                "{{prompt_id}}",
+                "prompt_versions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Prompt Version Details",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/prompts/{{prompt_id}}/prompt_versions/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "prompts",
+                "{{prompt_id}}",
+                "prompt_versions",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Prompt Version",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"prompt_version\": {\n    \"version_number\": 2,\n    \"content\": \"Updated prompt version content.\",\n    \"change_note\": \"Expanded instructions\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/prompts/{{prompt_id}}/prompt_versions",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "prompts",
+                "{{prompt_id}}",
+                "prompt_versions"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get User Details",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/{{user_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "{{user_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
