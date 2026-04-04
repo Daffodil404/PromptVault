@@ -22,6 +22,36 @@
 
   <%= form.fields_for :profile, @profile do |profile_form| %>
     <div class="field">
+      <%= profile_form.label :avatar, "Avatar" %>
+      <div
+        class="avatar-upload"
+        data-avatar-editor
+        data-has-image="<%= @profile.avatar.attached? %>"
+      >
+        <div class="profile-avatar-shell profile-avatar-preview" data-avatar-preview-shell>
+          <% if @profile.avatar.attached? %>
+            <%= image_tag @profile.avatar, alt: "#{@user.username} avatar", class: "profile-avatar profile-avatar-editable", style: @profile.avatar_presentation_style, data: { avatar_preview_image: true } %>
+          <% else %>
+            <div class="profile-avatar profile-avatar-placeholder" data-avatar-placeholder>
+              <%= @user.username.to_s.first(2).upcase %>
+            </div>
+            <img alt="<%= "#{@user.username} avatar preview" %>" class="profile-avatar profile-avatar-editable is-hidden" data-avatar-preview-image>
+          <% end %>
+        </div>
+
+        <div class="avatar-upload-fields">
+          <%= profile_form.file_field :avatar, accept: "image/png,image/jpeg,image/webp,image/gif" %>
+          <p class="field-hint">Upload a square image for best results. Maximum file size: 5 MB.</p>
+          <p class="field-hint">After selecting a file, a crop window will open so you can drag the image into position.</p>
+
+          <%= profile_form.hidden_field :avatar_zoom, value: @profile.avatar_zoom_value, data: { avatar_zoom_input: true } %>
+          <%= profile_form.hidden_field :avatar_offset_x, value: @profile.avatar_offset_x_value, data: { avatar_offset_x_input: true } %>
+          <%= profile_form.hidden_field :avatar_offset_y, value: @profile.avatar_offset_y_value, data: { avatar_offset_y_input: true } %>
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
       <%= profile_form.label :bio %>
       <%= profile_form.text_area :bio, rows: 6, placeholder: "Tell others what kinds of prompts you write or review." %>
     </div>
@@ -47,3 +77,260 @@
     <%= link_to "Cancel", user_path(@user), class: "button button-secondary" %>
   </div>
 <% end %>
+
+<div class="avatar-modal is-hidden" data-avatar-modal aria-hidden="true">
+  <div class="avatar-modal-backdrop" data-avatar-modal-close></div>
+  <div class="avatar-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="avatar-modal-title">
+    <div class="section-header">
+      <div>
+        <h2 id="avatar-modal-title">Adjust Avatar</h2>
+        <p class="meta">Drag the image to choose the final crop.</p>
+      </div>
+      <button type="button" class="button button-secondary" data-avatar-modal-close>Cancel</button>
+    </div>
+
+    <div class="avatar-modal-body">
+      <div class="avatar-cropper">
+        <div class="avatar-cropper-frame" data-avatar-drag-surface>
+          <img alt="Avatar crop preview" class="profile-avatar profile-avatar-editable avatar-cropper-image" data-avatar-modal-image>
+          <div class="avatar-cropper-mask" aria-hidden="true"></div>
+        </div>
+      </div>
+
+      <div class="avatar-modal-controls">
+        <div class="field">
+          <label for="avatar_zoom_modal">Zoom</label>
+          <input
+            id="avatar_zoom_modal"
+            type="range"
+            min="<%= Profile::AVATAR_MIN_ZOOM %>"
+            max="<%= Profile::AVATAR_MAX_ZOOM %>"
+            step="0.05"
+            value="<%= @profile.avatar_zoom_value %>"
+            data-avatar-modal-zoom
+          >
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="button button-secondary" data-avatar-reset>Reset</button>
+      <button type="button" class="button" data-avatar-apply>Use This Crop</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  (() => {
+    const initAvatarEditors = () => {
+      document.querySelectorAll("[data-avatar-editor]").forEach((editor) => {
+        if (editor.dataset.initialized === "true") return;
+        editor.dataset.initialized = "true";
+
+        const fileInput = editor.querySelector('input[type="file"]');
+        const zoomInput = editor.querySelector('[data-avatar-zoom-input]');
+        const offsetXInput = editor.querySelector('[data-avatar-offset-x-input]');
+        const offsetYInput = editor.querySelector('[data-avatar-offset-y-input]');
+        const previewImage = editor.querySelector("[data-avatar-preview-image]");
+        const placeholder = editor.querySelector("[data-avatar-placeholder]");
+        const modal = document.querySelector("[data-avatar-modal]");
+        const modalImage = modal?.querySelector("[data-avatar-modal-image]");
+        const modalZoomInput = modal?.querySelector("[data-avatar-modal-zoom]");
+        const dragSurface = modal?.querySelector("[data-avatar-drag-surface]");
+        const closeButtons = modal?.querySelectorAll("[data-avatar-modal-close]");
+        const applyButton = modal?.querySelector("[data-avatar-apply]");
+        const resetButton = modal?.querySelector("[data-avatar-reset]");
+        let draftState = null;
+        let originalState = null;
+        let dragging = false;
+        let dragStart = null;
+
+        const applyPreview = () => {
+          if (!previewImage) return;
+
+          previewImage.style.objectPosition = `${offsetXInput.value}% ${offsetYInput.value}%`;
+          previewImage.style.transform = `scale(${zoomInput.value})`;
+        };
+
+        const applyModalPreview = () => {
+          if (!modalImage || !draftState) return;
+
+          modalImage.style.objectPosition = `${draftState.offsetX}% ${draftState.offsetY}%`;
+          modalImage.style.transform = `scale(${draftState.zoom})`;
+        };
+
+        const syncDraftToInputs = () => {
+          zoomInput.value = draftState.zoom;
+          offsetXInput.value = Math.round(draftState.offsetX);
+          offsetYInput.value = Math.round(draftState.offsetY);
+          applyPreview();
+        };
+
+        const showImagePreview = (src) => {
+          if (!previewImage) return;
+
+          previewImage.src = src;
+          previewImage.classList.remove("is-hidden");
+          if (placeholder) placeholder.classList.add("is-hidden");
+          applyPreview();
+        };
+
+        if (editor.dataset.hasImage === "true" && previewImage) {
+          applyPreview();
+        }
+
+        const openModal = (src) => {
+          if (!modal || !modalImage || !modalZoomInput) return;
+
+          originalState = {
+            zoom: parseFloat(zoomInput.value),
+            offsetX: parseFloat(offsetXInput.value),
+            offsetY: parseFloat(offsetYInput.value),
+            previewSrc: previewImage?.src || null,
+            hadPreview: previewImage && !previewImage.classList.contains("is-hidden"),
+            hadPlaceholder: placeholder && !placeholder.classList.contains("is-hidden")
+          };
+
+          draftState = {
+            zoom: parseFloat(zoomInput.value),
+            offsetX: parseFloat(offsetXInput.value),
+            offsetY: parseFloat(offsetYInput.value),
+            src
+          };
+
+          modalImage.src = src;
+          modalZoomInput.value = draftState.zoom;
+          modal.classList.remove("is-hidden");
+          modal.setAttribute("aria-hidden", "false");
+          document.body.classList.add("modal-open");
+          applyModalPreview();
+        };
+
+        const closeModal = ({ revert = false } = {}) => {
+          if (!modal) return;
+
+          if (revert && originalState) {
+            zoomInput.value = originalState.zoom;
+            offsetXInput.value = originalState.offsetX;
+            offsetYInput.value = originalState.offsetY;
+            applyPreview();
+
+            if (previewImage) {
+              if (originalState.hadPreview && originalState.previewSrc) {
+                previewImage.src = originalState.previewSrc;
+                previewImage.classList.remove("is-hidden");
+              } else {
+                previewImage.classList.add("is-hidden");
+              }
+            }
+
+            if (placeholder) {
+              placeholder.classList.toggle("is-hidden", !originalState.hadPlaceholder);
+            }
+
+            if (!originalState.hadPreview) {
+              fileInput.value = "";
+            }
+          }
+
+          modal.classList.add("is-hidden");
+          modal.setAttribute("aria-hidden", "true");
+          document.body.classList.remove("modal-open");
+          dragging = false;
+          dragStart = null;
+        };
+
+        const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+
+        const updateDraftFromDrag = (clientX, clientY) => {
+          if (!dragStart || !draftState) return;
+
+          const rect = dragSurface.getBoundingClientRect();
+          const dx = clientX - dragStart.x;
+          const dy = clientY - dragStart.y;
+          const percentX = (dx / rect.width) * (100 / draftState.zoom);
+          const percentY = (dy / rect.height) * (100 / draftState.zoom);
+
+          draftState.offsetX = clamp(dragStart.offsetX - percentX, 0, 100);
+          draftState.offsetY = clamp(dragStart.offsetY - percentY, 0, 100);
+          applyModalPreview();
+        };
+
+        fileInput.addEventListener("change", (event) => {
+          const [file] = event.target.files;
+          if (!file) return;
+
+          const reader = new FileReader();
+          reader.addEventListener("load", () => {
+            showImagePreview(reader.result);
+            openModal(reader.result);
+          });
+          reader.readAsDataURL(file);
+        });
+
+        modalZoomInput?.addEventListener("input", () => {
+          if (!draftState) return;
+
+          draftState.zoom = parseFloat(modalZoomInput.value);
+          applyModalPreview();
+        });
+
+        dragSurface?.addEventListener("pointerdown", (event) => {
+          if (!draftState) return;
+
+          dragging = true;
+          dragStart = {
+            x: event.clientX,
+            y: event.clientY,
+            offsetX: draftState.offsetX,
+            offsetY: draftState.offsetY
+          };
+          dragSurface.setPointerCapture(event.pointerId);
+          dragSurface.classList.add("is-dragging");
+        });
+
+        dragSurface?.addEventListener("pointermove", (event) => {
+          if (!dragging) return;
+          updateDraftFromDrag(event.clientX, event.clientY);
+        });
+
+        const stopDragging = (event) => {
+          if (!dragging) return;
+          dragging = false;
+          dragStart = null;
+          dragSurface?.classList.remove("is-dragging");
+          if (event && dragSurface?.hasPointerCapture(event.pointerId)) {
+            dragSurface.releasePointerCapture(event.pointerId);
+          }
+        };
+
+        dragSurface?.addEventListener("pointerup", stopDragging);
+        dragSurface?.addEventListener("pointercancel", stopDragging);
+
+        closeButtons?.forEach((button) => {
+          button.addEventListener("click", () => closeModal({ revert: true }));
+        });
+
+        resetButton?.addEventListener("click", () => {
+          if (!draftState || !modalZoomInput) return;
+
+          draftState.zoom = <%= Profile::AVATAR_MIN_ZOOM %>;
+          draftState.offsetX = 50;
+          draftState.offsetY = 50;
+          modalZoomInput.value = draftState.zoom;
+          applyModalPreview();
+        });
+
+        applyButton?.addEventListener("click", () => {
+          if (!draftState) return;
+
+          syncDraftToInputs();
+          closeModal();
+        });
+      });
+    };
+
+    document.addEventListener("turbo:load", initAvatarEditors);
+    document.addEventListener("DOMContentLoaded", initAvatarEditors);
+  })();
+</script>

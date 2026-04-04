@@ -261,6 +261,144 @@ a:hover {
   font-size: 0.92rem;
 }
 
+.profile-hero,
+.avatar-upload {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.profile-avatar {
+  width: 7.5rem;
+  height: 7.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-muted);
+  box-shadow: var(--shadow-card);
+}
+
+.profile-avatar-shell {
+  width: 7.5rem;
+  height: 7.5rem;
+  border-radius: 999px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.profile-avatar-preview {
+  width: 7rem;
+  height: 7rem;
+}
+
+.profile-avatar-editable {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transform-origin: center;
+}
+
+.profile-avatar-placeholder {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  background: #dbeafe;
+}
+
+.avatar-upload-fields {
+  min-width: min(100%, 20rem);
+}
+
+.is-hidden {
+  display: none;
+}
+
+.modal-open {
+  overflow: hidden;
+}
+
+.avatar-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+}
+
+.avatar-modal.is-hidden {
+  display: none;
+}
+
+.avatar-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+}
+
+.avatar-modal-dialog {
+  position: relative;
+  z-index: 1;
+  width: min(40rem, 100%);
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 24px 64px rgba(15, 23, 42, 0.25);
+}
+
+.avatar-modal-body {
+  display: grid;
+  gap: var(--space-6);
+  margin: var(--space-6) 0;
+}
+
+.avatar-cropper {
+  display: flex;
+  justify-content: center;
+}
+
+.avatar-cropper-frame {
+  position: relative;
+  width: min(18rem, 70vw);
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 999px;
+  border: 1px solid var(--color-border-strong);
+  background: #0f172a;
+  cursor: grab;
+  touch-action: none;
+}
+
+.avatar-cropper-frame.is-dragging {
+  cursor: grabbing;
+}
+
+.avatar-cropper-image {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  box-shadow: none;
+}
+
+.avatar-cropper-mask {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.85);
+  pointer-events: none;
+}
+
+.avatar-modal-controls {
+  max-width: 22rem;
+  margin: 0 auto;
+  width: 100%;
+}
+
 .field input,
 .field select,
 .field textarea {
