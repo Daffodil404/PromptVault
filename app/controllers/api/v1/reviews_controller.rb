@@ -1,34 +1,35 @@
-class Api::V1::ReviewsController < ApplicationController
+class Api::V1::ReviewsController < Api::V1::BaseController
   before_action :set_prompt
   before_action :set_review, only: [:update, :destroy]
-  before_action :require_login, only: [:create, :update, :destroy]
+  before_action :require_api_login, only: [:create, :update, :destroy]
   before_action :require_review_owner, only: [:update, :destroy]
 
   def index
-    render json: @prompt.reviews
+    reviews = @prompt.reviews.includes(:user).order(created_at: :desc)
+    render_success(data: reviews.map { |review| serialize_review(review) })
   end
 
   def create
     review = @prompt.reviews.new(review_params)
     review.user = current_user
     if review.save
-      render json: review, status: :created
+      render_success(data: serialize_review(review), status: :created)
     else
-      render json: {errors: review.errors.full_messages}, status: :unprocessable_entity
+      render_errors(review.errors.full_messages)
     end
   end
 
   def update
     if @review.update(review_params)
-      render json: @review
+      render_success(data: serialize_review(@review))
     else
-      render json: {errors: @review.errors.full_messages}, status: :unprocessable_entity
+      render_errors(@review.errors.full_messages)
     end
   end
 
   def destroy
     @review.destroy
-    head :no_content
+    render_success(data: { message: "Review deleted successfully." })
   end
 
   private
@@ -42,10 +43,28 @@ class Api::V1::ReviewsController < ApplicationController
   end
 
   def require_review_owner
-    require_owner(@review, "You can only modify your own reviews.")
+    require_api_owner(@review, "You can only modify your own reviews.")
   end
 
   def review_params
     params.require(:review).permit(:rating, :comment)
+  end
+
+  def serialize_review(review)
+    {
+      id: review.id,
+      rating: review.rating,
+      comment: review.comment,
+      prompt_id: review.prompt_id,
+      user_id: review.user_id,
+      created_at: review.created_at,
+      updated_at: review.updated_at,
+      user: {
+        id: review.user.id,
+        username: review.user.username,
+        email: review.user.email,
+        role: review.user.role
+      }
+    }
   end
 end

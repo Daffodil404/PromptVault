@@ -1,14 +1,15 @@
-class Api::V1::PromptsController < ApplicationController
+class Api::V1::PromptsController < Api::V1::BaseController
   before_action :set_prompt, only: [:show, :update, :destroy]
-  before_action :require_login, only: [:create, :update, :destroy]
+  before_action :require_api_login, only: [:create, :update, :destroy]
   before_action :require_prompt_owner, only: [:update, :destroy]
+
   def index
-    prompts = Prompt.includes(:user, :prompt_versions, :reviews, :tags).all
-    render json: prompts.as_json(include: prompt_includes)
+    prompts = Prompt.includes(:user, :prompt_versions, :reviews, :tags).order(updated_at: :desc)
+    render_success(data: prompts.map { |prompt| serialize_prompt(prompt) })
   end
 
   def show
-    render json: @prompt.as_json(include: prompt_includes)
+    render_success(data: serialize_prompt(@prompt))
   end
 
   def create
@@ -19,9 +20,9 @@ class Api::V1::PromptsController < ApplicationController
       prompt.sync_tags_from_names!(tag_names_param)
     end
 
-    render json: prompt.as_json(include: prompt_includes), status: :created
+    render_success(data: serialize_prompt(prompt.reload), status: :created)
   rescue ActiveRecord::RecordInvalid => error
-    render json: { errors: error.record.errors.full_messages }, status: :unprocessable_entity
+    render_errors(error.record.errors.full_messages)
   end
 
   def update
@@ -30,14 +31,14 @@ class Api::V1::PromptsController < ApplicationController
       @prompt.sync_tags_from_names!(tag_names_param)
     end
 
-    render json: @prompt.as_json(include: prompt_includes)
+    render_success(data: serialize_prompt(@prompt.reload))
   rescue ActiveRecord::RecordInvalid => error
-    render json: { errors: error.record.errors.full_messages }, status: :unprocessable_entity
+    render_errors(error.record.errors.full_messages)
   end
 
   def destroy
     @prompt.destroy
-    head :no_content
+    render_success(data: { message: "Prompt deleted successfully." })
   end
 
   private
@@ -47,7 +48,7 @@ class Api::V1::PromptsController < ApplicationController
   end
 
   def require_prompt_owner
-    require_owner(@prompt, "You can only modify your own prompts.")
+    require_api_owner(@prompt, "You can only modify your own prompts.")
   end
 
   def prompt_params
@@ -62,12 +63,52 @@ class Api::V1::PromptsController < ApplicationController
     prompt_params[:tag_names]
   end
 
-  def prompt_includes
+  def serialize_prompt(prompt)
     {
-      user: { only: [:id, :username, :email, :role] },
-      prompt_versions: { only: [:id, :version_number, :content, :change_note, :user_id] },
-      reviews: { only: [:id, :rating, :comment, :user_id] },
-      tags: { only: [:id, :name] }
+      id: prompt.id,
+      title: prompt.title,
+      abstract: prompt.abstract,
+      content: prompt.content,
+      status: prompt.status,
+      created_at: prompt.created_at,
+      updated_at: prompt.updated_at,
+      user: serialize_user_summary(prompt.user),
+      prompt_versions: prompt.prompt_versions.order(version_number: :desc).map { |version| serialize_prompt_version(version) },
+      reviews: prompt.reviews.order(created_at: :desc).map { |review| serialize_review(review) },
+      tags: prompt.tags.order(:name).map { |tag| { id: tag.id, name: tag.name } }
+    }
+  end
+
+  def serialize_user_summary(user)
+    {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      role: user.role
+    }
+  end
+
+  def serialize_prompt_version(version)
+    {
+      id: version.id,
+      version_number: version.version_number,
+      content: version.content,
+      change_note: version.change_note,
+      user_id: version.user_id,
+      created_at: version.created_at,
+      updated_at: version.updated_at
+    }
+  end
+
+  def serialize_review(review)
+    {
+      id: review.id,
+      rating: review.rating,
+      comment: review.comment,
+      user_id: review.user_id,
+      prompt_id: review.prompt_id,
+      created_at: review.created_at,
+      updated_at: review.updated_at
     }
   end
 end
