@@ -493,6 +493,130 @@ button:hover {
   align-items: center;
 }
 
+.prompt-detail-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(280px, 360px);
+  gap: var(--space-6);
+  align-items: start;
+}
+
+.prompt-detail-main {
+  min-width: 0;
+}
+
+.detail-hero h1,
+.detail-section h2 {
+  margin: 0;
+  letter-spacing: -0.03em;
+}
+
+.detail-lead {
+  margin: var(--space-3) 0 0;
+  max-width: 44rem;
+  color: var(--color-text-muted);
+  font-size: 1.05rem;
+}
+
+.detail-section-stack {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.detail-section-header,
+.detail-list-item-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.detail-section-header {
+  margin-bottom: var(--space-5);
+}
+
+.detail-section-header h2 {
+  margin-bottom: var(--space-1);
+}
+
+.prompt-content {
+  font-size: 0.98rem;
+}
+
+.summary-panel {
+  position: sticky;
+  top: 6rem;
+}
+
+.summary-panel-section + .summary-panel-section {
+  margin-top: var(--space-6);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--color-border);
+}
+
+.summary-list {
+  margin: 0;
+}
+
+.summary-row {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.summary-row:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.summary-row:last-child {
+  padding-bottom: 0;
+}
+
+.summary-row dt {
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+.summary-row dd {
+  margin: 0;
+}
+
+.summary-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.summary-stat {
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted);
+}
+
+.summary-stat strong,
+.summary-stat span {
+  display: block;
+}
+
+.summary-stat strong {
+  font-size: 1.25rem;
+}
+
+.summary-panel-actions {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.summary-panel-actions .button,
+.summary-panel-actions .button_to,
+.summary-panel-actions .button_to button {
+  width: 100%;
+}
+
 @media (max-width: 760px) {
   .navbar-row,
   .page-header,
@@ -512,5 +636,13 @@ button:hover {
 
   .page-content {
     padding-top: var(--space-6);
+  }
+
+  .prompt-detail-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-panel {
+    position: static;
   }
 }

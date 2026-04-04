@@ -1,99 +1,95 @@
 <% content_for :title, @prompt.title %>
 
-<section class="page-header">
-  <div>
-    <p class="eyebrow"><%= @prompt.status %></p>
-    <h1><%= @prompt.title %></h1>
-    <p><%= @prompt.abstract %></p>
-    <% if @prompt.tags.any? %>
-      <div class="tag-list">
-        <% @prompt.tags.each do |tag| %>
-          <span class="tag-chip"><%= tag.name %></span>
-        <% end %>
-      </div>
-    <% end %>
-    <p class="meta">Created by <strong><%= link_to @prompt.user.username, user_path(@prompt.user) %></strong></p>
-  </div>
+<section class="prompt-detail-layout">
+  <div class="prompt-detail-main">
+    <section class="card detail-hero">
+      <p class="eyebrow"><%= @prompt.status %></p>
+      <h1><%= @prompt.title %></h1>
+      <p class="detail-lead"><%= @prompt.abstract %></p>
+    </section>
 
-  <div class="actions">
-    <% if logged_in? %>
-      <%= link_to "Add Review", new_prompt_review_path(@prompt), class: "button" %>
-    <% else %>
-      <div class="disabled-action">
-        <span class="button button-disabled" aria-disabled="true">Add Review</span>
-        <span class="meta">Log in to leave a review.</span>
-      </div>
-    <% end %>
+    <div class="detail-section-stack">
+      <section class="card detail-section">
+        <div class="detail-section-header">
+          <div>
+            <h2>Prompt Content</h2>
+            <p class="meta">The full prompt text ready for reuse or iteration.</p>
+          </div>
+        </div>
 
-    <% if current_user == @prompt.user %>
-      <%= link_to "Edit Prompt", edit_prompt_path(@prompt), class: "button button-secondary" %>
-      <%= button_to "Delete Prompt", prompt_path(@prompt), method: :delete, data: { turbo_confirm: "Delete this prompt?" }, class: "button button-danger" %>
-    <% end %>
-  </div>
-</section>
+        <div class="prose prompt-content"><%= simple_format(@prompt.content) %></div>
+      </section>
 
-<section class="card">
-  <h2>Prompt Content</h2>
-  <div class="prose"><%= simple_format(@prompt.content) %></div>
-</section>
+      <section class="card detail-section">
+        <div class="detail-section-header">
+          <div>
+            <h2>Version History</h2>
+            <p class="meta">Track how this prompt changed over time.</p>
+          </div>
+          <span class="meta"><%= pluralize(@prompt_versions.size, "version") %></span>
+        </div>
 
-<section class="two-column">
-  <article class="card">
-    <div class="section-header">
-      <h2>Version History</h2>
-      <span class="meta"><%= pluralize(@prompt_versions.size, "version") %></span>
-    </div>
-
-    <% if @prompt_versions.any? %>
-      <ul class="stack-list">
-        <% @prompt_versions.each do |version| %>
-          <li>
-            <strong>v<%= version.version_number %></strong>
-            by <%= link_to version.user.username, user_path(version.user) %>
-            <span class="meta">· <%= version.created_at.strftime("%b %d, %Y") %></span>
-            <div><%= version.change_note.presence || "No change note provided." %></div>
-          </li>
-        <% end %>
-      </ul>
-    <% else %>
-      <p>No prompt versions yet.</p>
-    <% end %>
-  </article>
-
-  <article class="card">
-    <div class="section-header">
-      <h2>Reviews</h2>
-      <div class="inline-actions">
-        <%= link_to "See all", prompt_reviews_path(@prompt), class: "text-link" %>
-        <% if logged_in? %>
-          <%= link_to "Write a review", new_prompt_review_path(@prompt), class: "text-link" %>
-        <% else %>
-          <span class="text-link text-link-disabled" aria-disabled="true">Write a review</span>
-        <% end %>
-      </div>
-    </div>
-
-    <% if @reviews.any? %>
-      <ul class="stack-list">
-        <% @reviews.each do |review| %>
-          <li>
-            <div class="section-header">
-              <strong><%= link_to review.user.username, user_path(review.user) %></strong>
-              <span class="pill"><%= "#{review.rating}/5" %></span>
-            </div>
-            <p><%= review.comment %></p>
-
-            <% if current_user == review.user %>
-              <div class="inline-actions">
-                <%= link_to "Edit", edit_prompt_review_path(@prompt, review), class: "text-link" %>
-                <%= button_to "Delete", prompt_review_path(@prompt, review), method: :delete, data: { turbo_confirm: "Delete this review?" }, class: "button-link" %>
-              </div>
+        <% if @prompt_versions.any? %>
+          <ul class="stack-list">
+            <% @prompt_versions.each do |version| %>
+              <li>
+                <div class="detail-list-item-header">
+                  <div>
+                    <strong>v<%= version.version_number %></strong>
+                    <span class="meta">by <%= link_to version.user.username, user_path(version.user) %></span>
+                  </div>
+                  <span class="meta"><%= version.created_at.strftime("%b %d, %Y") %></span>
+                </div>
+                <p class="meta"><%= version.change_note.presence || "No change note provided." %></p>
+              </li>
             <% end %>
-          </li>
+          </ul>
+        <% else %>
+          <p class="meta">No prompt versions yet.</p>
         <% end %>
-      </ul>
-    <% else %>
-      <p>No reviews yet.</p>
-    <% end %>
-  </article>
+      </section>
+
+      <section class="card detail-section">
+        <div class="detail-section-header">
+          <div>
+            <h2>Reviews</h2>
+            <p class="meta">Feedback from people who have tried or evaluated this prompt.</p>
+          </div>
+          <div class="inline-actions">
+            <%= link_to "See all", prompt_reviews_path(@prompt), class: "text-link" %>
+            <% if logged_in? %>
+              <%= link_to "Write a review", new_prompt_review_path(@prompt), class: "text-link" %>
+            <% else %>
+              <span class="text-link text-link-disabled" aria-disabled="true">Write a review</span>
+            <% end %>
+          </div>
+        </div>
+
+        <% if @reviews.any? %>
+          <ul class="stack-list">
+            <% @reviews.each do |review| %>
+              <li>
+                <div class="detail-list-item-header">
+                  <strong><%= link_to review.user.username, user_path(review.user) %></strong>
+                  <span class="pill"><%= "#{review.rating}/5" %></span>
+                </div>
+                <p><%= review.comment %></p>
+
+                <% if current_user == review.user %>
+                  <div class="inline-actions">
+                    <%= link_to "Edit", edit_prompt_review_path(@prompt, review), class: "text-link" %>
+                    <%= button_to "Delete", prompt_review_path(@prompt, review), method: :delete, data: { turbo_confirm: "Delete this review?" }, class: "button-link" %>
+                  </div>
+                <% end %>
+              </li>
+            <% end %>
+          </ul>
+        <% else %>
+          <p class="meta">No reviews yet.</p>
+        <% end %>
+      </section>
+    </div>
+  </div>
+
+  <%= render "summary_panel", prompt: @prompt, prompt_versions: @prompt_versions, reviews: @reviews %>
 </section>

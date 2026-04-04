@@ -1,0 +1,66 @@
+<aside class="card summary-panel">
+  <div class="summary-panel-section">
+    <p class="eyebrow">Summary</p>
+
+    <dl class="summary-list">
+      <div class="summary-row">
+        <dt>Author</dt>
+        <dd><%= link_to prompt.user.username, user_path(prompt.user), class: "text-link" %></dd>
+      </div>
+
+      <div class="summary-row">
+        <dt>Status</dt>
+        <dd><span class="pill"><%= prompt.status %></span></dd>
+      </div>
+
+      <div class="summary-row">
+        <dt>Tags</dt>
+        <dd>
+          <% if prompt.tags.any? %>
+            <div class="tag-list compact">
+              <% prompt.tags.each do |tag| %>
+                <span class="tag-chip"><%= tag.name %></span>
+              <% end %>
+            </div>
+          <% else %>
+            <span class="meta">No tags yet</span>
+          <% end %>
+        </dd>
+      </div>
+    </dl>
+  </div>
+
+  <div class="summary-panel-section">
+    <div class="summary-stats">
+      <div class="summary-stat">
+        <strong><%= reviews.size %></strong>
+        <span class="meta"><%= "review".pluralize(reviews.size) %></span>
+      </div>
+
+      <div class="summary-stat">
+        <strong><%= prompt_versions.size %></strong>
+        <span class="meta"><%= "version".pluralize(prompt_versions.size) %></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="summary-panel-section">
+    <div class="summary-panel-actions">
+      <% if logged_in? %>
+        <%= link_to "Add Review", new_prompt_review_path(prompt), class: "button" %>
+      <% else %>
+        <div class="disabled-action">
+          <span class="button button-disabled" aria-disabled="true">Add Review</span>
+          <span class="meta">Log in to leave a review.</span>
+        </div>
+      <% end %>
+
+      <%= link_to "All Reviews", prompt_reviews_path(prompt), class: "button button-secondary" %>
+
+      <% if current_user == prompt.user %>
+        <%= link_to "Edit Prompt", edit_prompt_path(prompt), class: "button button-secondary" %>
+        <%= button_to "Delete Prompt", prompt_path(prompt), method: :delete, data: { turbo_confirm: "Delete this prompt?" }, class: "button button-danger" %>
+      <% end %>
+    </div>
+  </div>
+</aside>
