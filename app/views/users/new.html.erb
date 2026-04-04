@@ -8,16 +8,7 @@
 </section>
 
 <section class="card form-card auth-card">
-  <% if @user.errors.any? %>
-    <section class="card errors">
-      <h2><%= pluralize(@user.errors.count, "error") %> prevented this account from being saved:</h2>
-      <ul>
-        <% @user.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
-        <% end %>
-      </ul>
-    </section>
-  <% end %>
+  <%= render "shared/form_errors", object: @user, object_name: "account" %>
 
   <%= form_with model: @user, url: sign_up_path, local: true do |form| %>
     <div class="field">

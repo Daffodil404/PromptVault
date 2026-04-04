@@ -1,13 +1,4 @@
-<% if review.errors.any? %>
-  <section class="card errors">
-    <h2><%= pluralize(review.errors.count, "error") %> prevented this review from being saved:</h2>
-    <ul>
-      <% review.errors.full_messages.each do |message| %>
-        <li><%= message %></li>
-      <% end %>
-    </ul>
-  </section>
-<% end %>
+<%= render "shared/form_errors", object: review, object_name: "review" %>
 
 <%= form_with model: [prompt, review], local: true do |form| %>
   <div class="field">

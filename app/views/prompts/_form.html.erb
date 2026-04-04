@@ -1,13 +1,4 @@
-<% if prompt.errors.any? %>
-  <section class="card errors">
-    <h2><%= pluralize(prompt.errors.count, "error") %> prevented this prompt from being saved:</h2>
-    <ul>
-      <% prompt.errors.full_messages.each do |message| %>
-        <li><%= message %></li>
-      <% end %>
-    </ul>
-  </section>
-<% end %>
+<%= render "shared/form_errors", object: prompt, object_name: "prompt" %>
 
 <%= form_with model: prompt, local: true do |form| %>
   <div class="field">

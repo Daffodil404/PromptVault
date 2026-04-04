@@ -1,0 +1,10 @@
+<% return unless object.errors.any? %>
+
+<section class="card errors">
+  <h2><%= pluralize(object.errors.count, "error") %> prevented this <%= object_name %> from being saved:</h2>
+  <ul>
+    <% object.errors.full_messages.each do |message| %>
+      <li><%= message %></li>
+    <% end %>
+  </ul>
+</section>

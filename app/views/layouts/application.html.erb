@@ -44,9 +44,7 @@
     </header>
 
     <main class="container">
-      <% flash.each do |type, message| %>
-        <p class="flash <%= type %>"><%= message %></p>
-      <% end %>
+      <%= render "shared/flash" %>
 
       <%= yield %>
     </main>

@@ -62,6 +62,7 @@ class UsersController < ApplicationController
   end
 
   def profile_params
-    params.fetch(:profile, {}).permit(:bio, :location, :website, :favorite_prompt_style)
+    params.dig(:user, :profile)&.permit(:bio, :location, :website, :favorite_prompt_style) ||
+      params.fetch(:profile, {}).permit(:bio, :location, :website, :favorite_prompt_style)
   end
 end
