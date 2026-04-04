@@ -4,6 +4,9 @@ require "rails/test_help"
 
 module ActiveSupport
   class TestCase
+    include ActiveJob::TestHelper
+    include ActionMailer::TestHelper
+
     # Run tests in parallel with specified workers
     parallelize(workers: :number_of_processors)
 
@@ -11,5 +14,9 @@ module ActiveSupport
     fixtures :all
 
     # Add more helper methods to be used by all tests here...
+    setup do
+      clear_enqueued_jobs
+      clear_performed_jobs
+    end
   end
 end

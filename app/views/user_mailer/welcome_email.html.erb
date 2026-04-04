@@ -1,0 +1,10 @@
+<h1>Welcome to PromptVault, <%= @user.username %>!</h1>
+
+<p>Your account is ready, and you can now create prompts, manage versions, and leave reviews.</p>
+
+<p>
+  Visit your profile here:
+  <%= link_to user_url(@user), user_url(@user) %>
+</p>
+
+<p>Thanks for joining PromptVault.</p>

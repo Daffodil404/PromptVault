@@ -13,6 +13,18 @@ class UserTest < ActiveSupport::TestCase
     assert_predicate user.profile, :present?
   end
 
+  test "queues a welcome email after create" do
+    assert_enqueued_emails 1 do
+      User.create!(
+        username: "welcome_owner",
+        email: "welcome_owner@example.com",
+        role: "author",
+        password: "password",
+        password_confirmation: "password"
+      )
+    end
+  end
+
   test "generates an authentication token on create" do
     user = User.create!(
       username: "token_owner",

@@ -12,6 +12,7 @@ class User < ApplicationRecord
   validates :authentication_token, presence: true, uniqueness: true
 
   after_create_commit :create_default_profile!
+  after_create_commit :send_welcome_email, on: :create
   before_validation :ensure_authentication_token, on: :create
 
   def regenerate_authentication_token!
@@ -33,5 +34,9 @@ class User < ApplicationRecord
 
   def create_default_profile!
     create_profile! unless profile
+  end
+
+  def send_welcome_email
+    UserMailer.welcome_email(self).deliver_later
   end
 end
