@@ -1,5 +1,8 @@
 class Api::V1::BaseController < ApplicationController
+  include ActionController::HttpAuthentication::Token::ControllerMethods
+
   skip_forgery_protection
+  before_action :authenticate_user_from_token!
 
   rescue_from ActiveRecord::RecordNotFound, with: :render_not_found
   rescue_from ActionController::ParameterMissing, with: :render_parameter_missing
@@ -7,9 +10,18 @@ class Api::V1::BaseController < ApplicationController
   private
 
   def require_api_login
-    return if logged_in?
+    return if current_user
 
     render_error("Authentication is required.", status: :unauthorized)
+  end
+
+  def authenticate_user_from_token!
+    return if user_signed_in?
+
+    authenticate_with_http_token do |token, _options|
+      user = User.find_by(authentication_token: token)
+      sign_in(user, store: false) if user
+    end
   end
 
   def require_api_owner(record, message)

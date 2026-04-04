@@ -11,20 +11,24 @@ Rails.application.routes.draw do
 
   root "prompts#index"
 
+  devise_for :users, skip: [:sessions, :registrations]
+  devise_scope :user do
+    get "sign_up", to: "users#new", as: :sign_up
+    post "sign_up", to: "users#create"
+    get "login", to: "sessions#new", as: :login
+    post "login", to: "sessions#create"
+    delete "logout", to: "sessions#destroy", as: :logout
+  end
+
   resources :users, only: [:show, :edit, :update]
   resources :prompts do
     resources :reviews, except: :show
   end
 
-  get "sign_up", to: "users#new"
-  post "sign_up", to: "users#create"
-
-  get "login", to: "sessions#new"
-  post "login", to: "sessions#create"
-  delete "logout", to: "sessions#destroy"
-
   namespace :api do
     namespace :v1 do
+      post "auth/login", to: "sessions#create"
+      delete "auth/logout", to: "sessions#destroy"
       resources :users, only: [:show]
       resources :prompts do
         resources :prompt_versions, only: [:index, :show, :create]

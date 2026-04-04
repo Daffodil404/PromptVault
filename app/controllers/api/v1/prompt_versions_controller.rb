@@ -1,5 +1,6 @@
 class Api::V1::PromptVersionsController < Api::V1::BaseController
   before_action :set_prompt
+  before_action :require_api_login, only: :create
 
   def index
     versions = @prompt.prompt_versions.includes(:user).order(version_number: :desc)
@@ -13,6 +14,7 @@ class Api::V1::PromptVersionsController < Api::V1::BaseController
 
   def create
     prompt_version = @prompt.prompt_versions.new(prompt_version_params)
+    prompt_version.user = current_user
 
     if prompt_version.save
       render_success(data: serialize_prompt_version(prompt_version), status: :created)
@@ -28,7 +30,7 @@ class Api::V1::PromptVersionsController < Api::V1::BaseController
   end
 
   def prompt_version_params
-    params.require(:prompt_version).permit(:version_number, :content, :change_note, :user_id)
+    params.require(:prompt_version).permit(:version_number, :content, :change_note)
   end
 
   def serialize_prompt_version(prompt_version)

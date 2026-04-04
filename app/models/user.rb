@@ -5,19 +5,30 @@ class User < ApplicationRecord
   has_many :reviewed_prompts, -> { distinct }, through: :reviews, source: :prompt
   has_one :profile, dependent: :destroy
 
-  has_secure_password
+  devise :database_authenticatable, :registerable, :validatable
 
   validates :username, presence: true
-  validates :email, presence: true, uniqueness: true
   validates :role, presence: true
-  validates :password, presence: true, length: { minimum: 6 }, if: :password_required?
+  validates :authentication_token, presence: true, uniqueness: true
 
   after_create_commit :create_default_profile!
+  before_validation :ensure_authentication_token, on: :create
+
+  def regenerate_authentication_token!
+    update!(authentication_token: self.class.generate_unique_authentication_token)
+  end
+
+  def self.generate_unique_authentication_token
+    loop do
+      token = Devise.friendly_token(32)
+      break token unless exists?(authentication_token: token)
+    end
+  end
 
   private
 
-  def password_required?
-    new_record? || password.present?
+  def ensure_authentication_token
+    self.authentication_token ||= self.class.generate_unique_authentication_token
   end
 
   def create_default_profile!

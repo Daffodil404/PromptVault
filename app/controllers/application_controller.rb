@@ -5,20 +5,16 @@ class ApplicationController < ActionController::Base
   # Changes to the importmap will invalidate the etag for HTML responses
   stale_when_importmap_changes
 
-  helper_method :current_user, :logged_in?
+  helper_method :logged_in?
 
   private
 
-  def current_user
-    @current_user ||= User.find_by(id: session[:user_id]) if session[:user_id]
-  end
-
   def logged_in?
-    current_user.present?
+    user_signed_in?
   end
 
   def require_login
-    return if logged_in?
+    return if user_signed_in?
 
     handle_access_denied("Please log in first.", :unauthorized)
   end
