@@ -22,30 +22,46 @@
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
   </head>
 
-  <body>
-    <header class="site-header">
-      <div class="container nav-bar">
-        <%= link_to "PromptVault", root_path, class: "brand" %>
+  <body class="app-shell">
+    <header class="app-navbar">
+      <div class="layout-container navbar-row">
+        <div class="navbar-brand-group">
+          <%= link_to root_path, class: "brand-mark" do %>
+            <span class="brand-mark-badge">PV</span>
+            <span class="brand-mark-text">PromptVault</span>
+          <% end %>
 
-        <nav class="nav-links">
-          <%= link_to "Prompts", prompts_path %>
+          <nav class="navbar-nav" aria-label="Primary">
+            <%= link_to "Library", prompts_path, class: class_names("nav-link", "is-active": current_page?(prompts_path)) %>
+            <% if logged_in? %>
+              <%= link_to "My Profile", user_path(current_user), class: class_names("nav-link", "is-active": current_page?(user_path(current_user))) %>
+            <% end %>
+          </nav>
+        </div>
+
+        <div class="navbar-actions">
           <% if logged_in? %>
-            <%= link_to "New Prompt", new_prompt_path %>
-            <%= link_to "My Profile", user_path(current_user) %>
-            <span class="signed-in">Signed in as <strong><%= current_user.username %></strong></span>
+            <%= link_to current_user.username, user_path(current_user), class: "nav-link nav-link-subtle" %>
+            <%= link_to "New Prompt", new_prompt_path, class: "button" %>
             <%= button_to "Log out", logout_path, method: :delete, class: "button button-secondary" %>
           <% else %>
-            <span class="button button-disabled" aria-disabled="true" title="Log in to create a prompt">New Prompt</span>
-            <%= link_to "Sign up", sign_up_path %>
+            <%= link_to "Sign up", sign_up_path, class: "nav-link nav-link-subtle" %>
             <%= link_to "Log in", login_path, class: "button button-secondary" %>
           <% end %>
-        </nav>
+        </div>
       </div>
     </header>
 
-    <main class="container">
-      <%= render "shared/flash" %>
+    <% if content_for?(:page_header) %>
+      <section class="app-page-header">
+        <div class="layout-container">
+          <%= yield :page_header %>
+        </div>
+      </section>
+    <% end %>
 
+    <main class="layout-container page-content">
+      <%= render "shared/flash" %>
       <%= yield %>
     </main>
   </body>

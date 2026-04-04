@@ -1,0 +1,23 @@
+<% eyebrow = local_assigns[:eyebrow] %>
+<% subtitle = local_assigns[:subtitle] %>
+<% actions = local_assigns[:actions] %>
+
+<section class="page-header">
+  <div class="page-header-copy">
+    <% if eyebrow.present? %>
+      <p class="page-header-eyebrow"><%= eyebrow %></p>
+    <% end %>
+
+    <h1><%= title %></h1>
+
+    <% if subtitle.present? %>
+      <p class="page-header-subtitle"><%= subtitle %></p>
+    <% end %>
+  </div>
+
+  <% if actions.present? %>
+    <div class="page-header-actions">
+      <%= actions %>
+    </div>
+  <% end %>
+</section>

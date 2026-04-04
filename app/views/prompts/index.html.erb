@@ -1,20 +1,22 @@
 <% content_for :title, "Prompts" %>
 
-<section class="page-header">
-  <div>
-    <h1>Prompt Library</h1>
-    <p>Browse, publish, and review reusable prompts.</p>
-  </div>
-
-  <% if logged_in? %>
-    <%= link_to "New Prompt", new_prompt_path, class: "button" %>
-  <% else %>
-    <div class="disabled-action">
-      <span class="button button-disabled" aria-disabled="true">New Prompt</span>
-      <span class="meta">Log in to create prompts.</span>
-    </div>
+<% content_for :page_header do %>
+  <% header_actions = capture do %>
+    <% if logged_in? %>
+      <%= link_to "New Prompt", new_prompt_path, class: "button" %>
+    <% else %>
+      <div class="disabled-action">
+        <span class="button button-disabled" aria-disabled="true">New Prompt</span>
+        <span class="meta">Log in to create prompts.</span>
+      </div>
+    <% end %>
   <% end %>
-</section>
+
+  <%= render "shared/page_header",
+      title: "Prompt Library",
+      subtitle: "Browse, publish, and review reusable prompts from your team's shared library.",
+      actions: header_actions %>
+<% end %>
 
 <% if @prompts.any? %>
   <section class="card-grid">
